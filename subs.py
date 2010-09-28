@@ -1,31 +1,6 @@
 """
-Copyright 2010 A. Nackov. All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
-
-   1. Redistributions of source code must retain the above copyright notice, this list of
-      conditions and the following disclaimer.
-
-   2. Redistributions in binary form must reproduce the above copyright notice, this list
-      of conditions and the following disclaimer in the documentation and/or other materials
-      provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER ``AS IS'' AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those of the
-authors and should not be interpreted as representing official policies, either expressed
-or implied, of the copyright holder.
+A little script for converting time of subtitles in .srt format.
 """
-
 import datetime
 import fileinput
 import argparse
@@ -33,8 +8,8 @@ import argparse
 class SubTime(object):
 
     def __init__(self, time_as_str):
-        h, m, s, ms = self.parse_time(time_as_str)
-        microseconds = ms * 1000
+        h, m, s, milliseconds = self.parse_time(time_as_str)
+        microseconds = milliseconds * 1000
         self.time = datetime.time(h, m, s, microseconds)
 
     def parse_time(self, time):
@@ -42,12 +17,13 @@ class SubTime(object):
         Returns the hours, minutes, seconds, milliseconds.
         """
         hour, minute, s = time.split(':')
-        second, ms = s.split(',')
-        return map(lambda n: int(n), (hour, minute, second, ms))
+        second, millisecond = s.split(',')
+        return map(int, (hour, minute, second, millisecond))
 
     def set_time(self, ms):
         """
-        A function for calculating (and setting) the new .str time.
+        A function for changing the time of the subtitles.
+        As input receives milliseconds.
         """
         time_val = datetime.timedelta(microseconds = ms*1000)
         newdatetime = datetime.datetime.combine(
@@ -75,27 +51,39 @@ if __name__ == "__main__":
 
     splitline = lambda line: map(lambda s: s.strip(), line.split("-->"))
 
+    # In a .srt file, each new subtitle is in a section of a few lines, separated by
+    # a blank line. E.g.:
+    # ...............................
+    # 123
+    # 01:12:23,389 --> 01:12:24,001
+    # some witty text here
+    #
+    # 124
+    # ...............................
+
+    # the "search_sub_time" will indicate whether we have entered such a section
+    # of a few lines.
     search_sub_time = False
     for line in fileinput.input(args.filename, inplace=1):
     # fileinput with 'inplace=1' prints to args.filename as stdout
         line = line.strip()
-        if line.isdigit():
+        if line.isdigit(): # we have entered a subtitles section 
             search_sub_time = True
             print line
             continue
-        if not line:
+        if not line: # blank line
             search_sub_time = False
             print '\n'
             continue
-        if search_sub_time:
+        if search_sub_time: 
             oldline = line
-            if line[0].isdigit():
-                subfrom, subto = map(
-                        lambda n: SubTime(n), splitline(line))
+            if line[0].isdigit(): # a line with the time of the subtitles
+                subfrom, subto = [SubTime(t) for t in splitline(line)]
+                # set the new time of the subtitles:
                 subfrom.set_time(args.delay)
                 subto.set_time(args.delay)
                 newline = "%s --> %s" % (str(subfrom),
                                            str(subto))
                 print newline
                 continue
-        print line,
+        print line, # prints the lines with text in them
