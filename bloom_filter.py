@@ -1,5 +1,8 @@
 """
 A prototype of a bloom filter. 
+
+Copyright 2011 Adrian Nackov
+BSD Licence (3 clause): http://www.opensource.org/licenses/bsd-license.php
 """
 from hashlib import sha224, md5, sha1
 
