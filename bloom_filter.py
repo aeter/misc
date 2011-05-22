@@ -17,27 +17,31 @@ class BloomFilter(object):
 
     def add(self, elem):
         """
-        Adds to the bloom filter. Changes self._bits
+        Adds elem to the bloom filter. Changes self._bits
         """
-        indexes = [self._hash(fn, elem) for fn in self._hash_functions]
-        for i in indexes:
+        for i in self._get_indexes(elem):
             self._bits[i] = 1
 
     def has(self, elem):
         """
         Checks whether the element is in the filter
         """
-        indexes = [self._hash(fn, elem) for fn in self._hash_functions]
-        found = all(self._bits[i] for i in indexes)
-        return found
+        return all(self._bits[i] for i in self._get_indexes(elem))
 
     def _hash(self, hash_fn, elem):
         """
         Runs the hash function on the element and finds its index
-        in the bits sequence. 
-        Returns an int between 0 and self._size.
+        in the bits sequence. Returns an int between 0 and
+        self._size (that is, an index value for self._bits).
         """
         return int(hash_fn(elem).hexdigest(), 32) % self._size
+
+    def _get_indexes(self, elem):
+        """
+        Gets the indexes in self._bits for elem by applying all hash
+        functions from self._hash_functions to it.
+        """
+        return [self._hash(fn, elem) for fn in self._hash_functions]
 
 def get_words():
     """
