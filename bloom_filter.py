@@ -11,7 +11,7 @@ LEN = 2000000 #The length of the filter
 HASH_FUNCTIONS = [sha224, md5, sha1]
 
 class BloomFilter(object):
-    def __init__(self, size, hash_functions):
+    def __init__(self, size=LEN, hash_functions=HASH_FUNCTIONS):
         self._size = size 
         self._bits = [0 for _ in range(self._size)]
         self._hash_functions = hash_functions
@@ -55,7 +55,7 @@ def get_words():
         return f.readlines()
 
 if __name__ == '__main__':
-    bf = BloomFilter(size=LEN, hash_functions=HASH_FUNCTIONS)
+    bf = BloomFilter()
     for word in get_words():
         bf.add(word.strip())
     print bf.has('Kangaroo')
