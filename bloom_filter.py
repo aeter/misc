@@ -1,5 +1,5 @@
 """
-A simple bloom filter - a proof of concept
+A prototype of a bloom filter. 
 """
 from hashlib import sha224, md5, sha1
 
@@ -16,6 +16,9 @@ class BloomFilter(object):
         return ''.join(map(str, self._bits))
 
     def add(self, elem):
+        """
+        Adds to the bloom filter. Changes self._bits
+        """
         indexes = [self._hash(fn, elem) for fn in self._hash_functions]
         for i in indexes:
             self._bits[i] = 1
@@ -28,15 +31,18 @@ class BloomFilter(object):
         found = all(self._bits[i] for i in indexes)
         return found
 
-    def _hash(self, hash_fn, element):
+    def _hash(self, hash_fn, elem):
         """
         Runs the hash function on the element and finds its index
         in the bits sequence. 
         Returns an int between 0 and self._size.
         """
-        return int(hash_fn(element).hexdigest(), 32) % self._size
+        return int(hash_fn(elem).hexdigest(), 32) % self._size
 
 def get_words():
+    """
+    Returns a list of unique words; works on UNIX-like systems.
+    """
     with open("/usr/share/dict/words") as f:
         return f.readlines()
 
