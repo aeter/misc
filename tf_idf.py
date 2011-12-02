@@ -20,7 +20,7 @@ def tf_idf(doc, all_docs, term):
   assert(doc in all_docs, "The document is not from the corpus")
   return tf(term, doc) * idf(term, all_docs)
 
-def idf(term, all_docs):
+def idf(term, docs):
   '''
   Input:
     docs: a list of docs, such as [["Once", "upon"...], ["There", "was"]]
