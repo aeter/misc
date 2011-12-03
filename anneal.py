@@ -92,12 +92,13 @@ class TravellingSalesman(BaseToyProblem):
         },
     }
 
-    def __init__(self, example_solution=None):
+    def __init__(self, data):
         '''
         Input:
-            example_solution is a list of items
+            data has format like TravellingSalesman.CITIES is a list of items
         '''
-        self._example_solution = example_solution
+        self._data = data
+        self._example_solution = data.keys()
 
     def example_solution(self):
         return self._example_solution
@@ -109,7 +110,7 @@ class TravellingSalesman(BaseToyProblem):
         Input:
             solution is a list of items, such as ["a", "b", "c", "d"]
         """
-        cities = TravellingSalesman.CITIES
+        cities = self._data
         cities_by_two = zip(solution, solution[1:])
         distances = [cities[first][second] for first, second in cities_by_two]
         return sum(distances)
@@ -124,6 +125,6 @@ class TravellingSalesman(BaseToyProblem):
         return result
 
 if __name__ == '__main__':
-    t = TravellingSalesman(TravellingSalesman.CITIES.keys())
+    t = TravellingSalesman(TravellingSalesman.CITIES)
     print Optimization.anneal(t)
 
