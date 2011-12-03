@@ -95,7 +95,7 @@ class TravellingSalesman(BaseToyProblem):
     def __init__(self, data):
         '''
         Input:
-            data has format like TravellingSalesman.CITIES is a list of items
+            data has format like TravellingSalesman.CITIES
         '''
         self._data = data
         self._example_solution = data.keys()
